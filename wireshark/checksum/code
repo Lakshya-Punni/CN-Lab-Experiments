@@ -1,0 +1,23 @@
+from scapy.all import *
+from scapy.layers.tls.all import *
+
+# Load packets
+packets = rdpcap("capture_.pcapng")
+
+# Target checksum values
+target_checksums = {0x43e0, 0x5520, 0x5d74, 0x3b7f}
+
+# Iterate through packets
+for i, pkt in enumerate(packets):
+
+    if pkt.haslayer(IP) and pkt[IP].chksum in target_checksums:
+        print(f"\nPacket {i} IP checksum:", hex(pkt[IP].chksum))
+
+    if pkt.haslayer(TCP) and pkt[TCP].chksum in target_checksums:
+        print(f"Packet {i} TCP checksum:", hex(pkt[TCP].chksum))
+
+    if pkt.haslayer(UDP) and pkt[UDP].chksum in target_checksums:
+        print(f"Packet {i} UDP checksum:", hex(pkt[UDP].chksum))
+
+    if pkt.haslayer(TLS) and pkt.haslayer(TCP) and pkt[TCP].chksum in target_checksums:
+        print(f"Packet {i} TLS detected (TCP checksum:", hex(pkt[TCP].chksum), ")")
